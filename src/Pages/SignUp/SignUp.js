@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
-const Login = () => {
+const SignUp = () => {
   const {
     register,
     handleSubmit,
@@ -12,8 +12,23 @@ const Login = () => {
   return (
     <div className="h-[780px] flex justify-center items-center">
       <div className="w-96 shadow-md p-8 rounded-md">
-        <h2 className="text-2xl text-center">Login</h2>
+        <h2 className="text-2xl text-center">Sign Up</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-control w-full ">
+            <label className="label">
+              <span className="label-text">Name</span>
+            </label>
+            <input
+              type="text"
+              {...register("name", { required: "Name is required" })}
+              className="input input-bordered w-full "
+            />
+            {errors.name && (
+              <p role="alert" className="text-red-500">
+                {errors.name?.message}
+              </p>
+            )}
+          </div>
           <div className="form-control w-full ">
             <label className="label">
               <span className="label-text">Email</span>
@@ -41,6 +56,11 @@ const Login = () => {
                   value: 8,
                   message: "Password must be 8 characters or longer",
                 },
+                pattern: {
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                  message: "Password must be strong",
+                },
               })}
               className="input input-bordered w-full "
             />
@@ -49,21 +69,18 @@ const Login = () => {
                 {errors.password?.message}
               </p>
             )}
-            <label className="label">
-              <span className="label-text-alt">Forgot Password?</span>
-            </label>
           </div>
 
           <input
             type="submit"
-            value="login"
-            className="btn btn-accent w-full "
+            value="Sign Up"
+            className="btn btn-accent w-full mt-3"
           />
         </form>
         <p className="mt-3 text-center">
-          New to Doctors Portal?{" "}
-          <Link to="/signup" className="text-secondary">
-            Create new account
+          Already a member?{" "}
+          <Link to="/login" className="text-secondary">
+            Click to Login
           </Link>
         </p>
         <p className="mt-3 text-center">
@@ -85,4 +102,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
