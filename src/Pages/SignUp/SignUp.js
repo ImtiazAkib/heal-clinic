@@ -1,14 +1,47 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthProvider";
+import { toast } from "react-hot-toast";
 
 const SignUp = () => {
+  const [signUpError, setSignUpError] = useState("");
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+
+  const { signUp, updateUser, signInWithGoogle } = useContext(AuthContext);
+
+  const onSubmit = (data) => {
+    setSignUpError("");
+    signUp(data.email, data.password)
+      .then((res) => {
+        const user = res.user;
+        toast("User Created Successfully");
+        console.log(user);
+        const userInfo = {
+          displayName: data.name,
+        };
+        updateUser(userInfo)
+          .then(() => {})
+          .catch((error) => console.log(error));
+      })
+      .catch((err) => {
+        setSignUpError(err.message);
+      });
+  };
+  const handleGoogleSignIn = () => {
+    signInWithGoogle()
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
   return (
     <div className="h-[780px] flex justify-center items-center">
       <div className="w-96 shadow-md p-8 rounded-md">
@@ -59,7 +92,8 @@ const SignUp = () => {
                 pattern: {
                   value:
                     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                  message: "Password must be strong",
+                  message:
+                    "Password must have one lowercase letter,one uppercase letter,one digit,one special character and length of 8 characters",
                 },
               })}
               className="input input-bordered w-full "
@@ -76,6 +110,9 @@ const SignUp = () => {
             value="Sign Up"
             className="btn btn-accent w-full mt-3"
           />
+          <div>
+            {signUpError && <p className="text-red-500 my-2">{signUpError}</p>}
+          </div>
         </form>
         <p className="mt-3 text-center">
           Already a member?{" "}
@@ -94,7 +131,10 @@ const SignUp = () => {
             style={{ background: "#CFCFCF" }}
           ></span>
         </p>
-        <button className="btn btn-outline w-full mt-5">
+        <button
+          className="btn btn-outline w-full mt-5"
+          onClick={handleGoogleSignIn}
+        >
           CONTINUE WITH GOOGLE
         </button>
       </div>

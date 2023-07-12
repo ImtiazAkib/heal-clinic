@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthProvider";
 
 const Login = () => {
+  let navigate = useNavigate();
+  let location = useLocation();
+  let from = location.state?.from?.pathname || "/";
+  const [loginError, setLoginError] = useState("");
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const onSubmit = (data) => console.log(data);
+
+  const { signIn, signInWithGoogle } = useContext(AuthContext);
+  const onSubmit = (data) => {
+    setLoginError("");
+    signIn(data.email, data.password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        navigate(from, { replace: true });
+      })
+      .catch((error) => {
+        setLoginError(error.message);
+      });
+  };
+
+  const handleGoogleSignIn = () => {
+    signInWithGoogle()
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
   return (
     <div className="h-[780px] flex justify-center items-center">
       <div className="w-96 shadow-md p-8 rounded-md">
@@ -59,6 +89,9 @@ const Login = () => {
             value="login"
             className="btn btn-accent w-full "
           />
+          <div>
+            {loginError && <p className="text-red-500">{loginError}</p>}
+          </div>
         </form>
         <p className="mt-3 text-center">
           New to Doctors Portal?{" "}
@@ -77,7 +110,10 @@ const Login = () => {
             style={{ background: "#CFCFCF" }}
           ></span>
         </p>
-        <button className="btn btn-outline w-full mt-5">
+        <button
+          className="btn btn-outline w-full mt-5"
+          onClick={handleGoogleSignIn}
+        >
           CONTINUE WITH GOOGLE
         </button>
       </div>
